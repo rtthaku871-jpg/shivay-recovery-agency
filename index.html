@@ -68,7 +68,7 @@ footer{background:#030d1d;color:#c5d0e0;padding:25px 0;font-size:12px}.footrow{d
         <li>Enter your name, email address and contact number carefully.</li>
         <li>Select the role and preferred work location.</li>
         <li>Upload your CV as a PDF, DOC or DOCX file (maximum 10 MB).</li>
-        <li>Press “Submit Job Application”. Your application details and CV will be emailed to the agency address configured in this form.</li>
+        <li>Press “Submit Job Application”. WhatsApp will open with your details filled in. Attach your CV in the WhatsApp chat and press Send.</li>
         <li>The agency may contact you if a suitable vacancy is available.</li>
       </ul>
       <div class="notice"><strong>Privacy & safety:</strong> Your details and CV contain personal information. Share them only if you agree to send them to the agency. Do not include passwords, bank details or unnecessary identity documents in your CV. Never pay money to apply for a job.</div>
@@ -76,7 +76,7 @@ footer{background:#030d1d;color:#c5d0e0;padding:25px 0;font-size:12px}.footrow{d
         <a class="btn btn-green" href="https://wa.me/917026500002?text=Hello%20Shivay%20Agency%2C%20I%20would%20like%20to%20enquire%20about%20job%20opportunities." target="_blank" rel="noopener">Ask About Vacancies on WhatsApp</a>
       </div>
     </div>
-    <form class="contact-form" id="careerForm" action="https://formsubmit.co/dxtthakur78@gmail.com" method="POST" enctype="multipart/form-data">
+    <form class="contact-form" id="careerForm" action="#" method="POST" enctype="multipart/form-data">
       <h3>Submit Your Job Application</h3>
       <p>Complete all required fields and attach your CV.</p>
       <input type="hidden" name="_subject" value="New Job Application - Shivay Recovery Cum Supporting Agency">
@@ -91,7 +91,7 @@ footer{background:#030d1d;color:#c5d0e0;padding:25px 0;font-size:12px}.footrow{d
       <div class="field"><label for="jobMessage">Skills / Additional Details</label><textarea id="jobMessage" name="Skills / Additional Details" required placeholder="Briefly describe your skills and availability"></textarea></div>
       <div class="field"><label for="jobCV">Upload CV (PDF, DOC or DOCX; max 10 MB)</label><input id="jobCV" name="attachment" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required></div>
       <button class="btn btn-primary" type="submit">Submit Job Application →</button>
-      <p class="fineprint">IMPORTANT: Before publishing, replace dxtthakur78@gmail.com in the form action with the agency’s real email address. On first submission, FormSubmit emails that address a verification link; click it to activate delivery. CVs are emailed as attachments; this form service does not provide long-term file storage. Total attachment limit: 10 MB.</p>
+      <p class="fineprint">After WhatsApp opens, check the details, attach your CV file manually in the chat, and press Send. The application is not sent automatically until you press Send in WhatsApp. CV must be PDF, DOC or DOCX and no larger than 10 MB.</p>
       <p id="cvError" class="fineprint" role="alert" style="color:#a12626;display:none"></p>
     </form>
   </div>
@@ -135,26 +135,45 @@ modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
 document.getElementById('careerForm').addEventListener('submit',function(e){
+ e.preventDefault();
+ const form = this;
  const fileInput = document.getElementById('jobCV');
  const errorBox = document.getElementById('cvError');
  const file = fileInput.files && fileInput.files[0];
  errorBox.style.display = 'none';
  errorBox.textContent = '';
+ if (!form.reportValidity()) return;
  if (!file) {
-   e.preventDefault();
-   errorBox.textContent = 'Please attach your CV before submitting.';
+   errorBox.textContent = 'Please attach your CV before continuing.';
    errorBox.style.display = 'block';
    return;
  }
  if (!/\.(pdf|doc|docx)$/i.test(file.name)) {
-   e.preventDefault();
    errorBox.textContent = 'Please upload your CV as a PDF, DOC or DOCX file.';
    errorBox.style.display = 'block';
    return;
  }
  if (file.size > 10 * 1024 * 1024) {
-   e.preventDefault();
    errorBox.textContent = 'Your CV file is larger than 10 MB. Please choose a smaller file.';
+   errorBox.style.display = 'block';
+   return;
+ }
+ const data = new FormData(form);
+ const message =
+   'JOB APPLICATION - Shivay Recovery Cum Supporting Agency\n\n' +
+   'Full Name: ' + data.get('Full Name') + '\n' +
+   'Email: ' + data.get('email') + '\n' +
+   'Contact Number: ' + data.get('Contact Number') + '\n' +
+   'Role: ' + data.get('Role Interested In') + '\n' +
+   'Preferred Location: ' + data.get('Preferred Work Location') + '\n' +
+   'Experience: ' + data.get('Relevant Experience') + '\n' +
+   'Skills / Details: ' + data.get('Skills / Additional Details') + '\n\n' +
+   'CV file selected: ' + file.name + '\n' +
+   'I will attach my CV file in this WhatsApp chat before sending.';
+ const waUrl = 'https://wa.me/917026500002?text=' + encodeURIComponent(message);
+ const newTab = window.open(waUrl, '_blank');
+ if (!newTab) {
+   errorBox.textContent = 'WhatsApp could not open automatically. Please allow pop-ups and submit again, or open WhatsApp and message 7026500002.';
    errorBox.style.display = 'block';
  }
 });
